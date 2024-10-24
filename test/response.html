@@ -1,0 +1,157 @@
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon" /><meta name="keywords" content="Rutgers Research Centers, Rutgers Research Institutes" /><meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" /><meta name="description" content="List of research centers at Rutgers, The State University of New Jersey." /><title>
+	Home | Research Centers
+</title>
+    <style type="text/css" media="all">
+        @import url("style/system.base.css?version=1.0.0.1");
+        @import url("style/system.messages.css?ojzvez");
+    </style>
+    <style type="text/css" media="all">
+        @import url("style/jquery.ui.core.css?ojzvez");
+        @import url("style/jquery.ui.theme.css?ojzvez");
+        @import url("style/jquery.ui.button.css?ojzvez");
+        @import url("style/jquery.ui.resizable.css?ojzvez");
+        @import url("style/jquery.ui.dialog.css?ojzvez");
+    </style>
+    <style type="text/css" media="all">
+        @import url("style/date.css?ojzvez");
+        @import url("style/datepicker.1.7.css?ojzvez");
+        @import url("style/ckeditor.css?ojzvez");
+    </style>
+    <style type="text/css" media="all">
+        @import url("style/node_embed.css?ojzvez");
+        @import url("style/page.css?ojzvez");
+    </style>
+    <style type="text/css" media="all">
+        @import url("style/base.css?v=1.0.1");
+        @import url("style/style.css?ojzvez");
+    </style>
+    <script type="text/javascript" src="script/jquery.min.js"></script>
+
+    <script type="text/javascript" src="script/jquery.once.js?v=1.2"></script>
+    <script type="text/javascript" src="script/drupal.js?ojzvez"></script>
+    <script type="text/javascript" src="script/jquery.ui.core.min.js?v=1.8.7"></script>
+    <script type="text/javascript" src="script/jquery.ui.widget.min.js?v=1.8.7"></script>
+    <script type="text/javascript" src="script/jquery.ui.button.min.js?v=1.8.7"></script>
+    <script type="text/javascript" src="script/jquery.ui.mouse.min.js?v=1.8.7"></script>
+    <script type="text/javascript" src="script/jquery.ui.draggable.min.js?v=1.8.7"></script>
+    <script type="text/javascript" src="script/jquery.ui.position.min.js?v=1.8.7"></script>
+    <script type="text/javascript" src="script/jquery.ui.resizable.min.js?v=1.8.7"></script>
+    <script type="text/javascript" src="script/jquery.ui.dialog.min.js?v=1.8.7"></script>
+    <script type="text/javascript" src="script/ajax.js?v=7.34"></script>
+    <script type="text/javascript" src="script/linkit.js?v=7.3"></script>
+    <script type="text/javascript" src="script/progress.js?v=7.34"></script>
+    <script type="text/javascript" src="script/linkitDialog.js?v=7.3"></script>
+    <script type="text/javascript" src="script/base.js?ojzvez"></script>
+    <script type="text/javascript" src="script/respond.js?ojzvez"></script>
+    <script type="text/javascript" src="script/centers.js?v=1.0.0"></script>
+
+    <script type="text/javascript">
+
+        jQuery(document).ready(function () {
+            jQuery.ajaxSetup({ cache: false });
+            jQuery("#sliverPanel").load("control/sliver.html", function () { setTimeout(function () { PageManager.menuToggle(); }, 100); });
+            jQuery(".masthead").load("menu/header.html", function () {
+                setTimeout(function () { PageManager.activeTopMenu('about-us'); }, 100);
+            });
+            jQuery(".bottom").load("control/bottom.html");
+            jQuery(".footer-second").load("control/footer.html");
+
+            var leftmenuHtml = jQuery("#leftmenuPanel").html();
+            jQuery("#leftmenuPanel").load("menu/left_menu.html", function () {
+                setTimeout(function () { PageManager.activeLeftMenu(); }, 100);
+                jQuery("#leftmenuPanel").append(leftmenuHtml);
+            });
+
+            CentersManager.init();
+        });
+
+    </script>
+
+    <style>
+        @media (max-width: 760px) {
+            .table-centers {
+                border: 0;
+            }
+
+            .table-centers .header-centers {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+                .table-centers .header-centers td {
+                    padding: 5px 8px;
+                    width: 35px;
+                }
+        }
+    </style>
+
+</head>
+<body class="html not-front not-logged-in one-sidebar sidebar-second page-node page-node- page-node-3 node-type-page">
+    <div id="skip-link">
+        <a href="#main-content" class="element-invisible element-focusable">Skip to main content</a>
+    </div>
+
+    <div class="page">
+
+        <div class="region-wrapper clearfix sliver" id="sliverPanel"></div>
+        <!-- /sliver -->
+
+        <div class="region-wrapper clearfix masthead menu-singleheight"></div>
+        <!-- /header -->
+
+        <div class="region-wrapper clearfix main-content">
+            <div class="region-inner">
+                <a id="main-content"></a>
+                <div class="main-content-nest">
+
+
+                    <div class="region region-content">
+                        <div id="block-system-main" class="block block-system">
+                            <div class="content">
+                                <div class="field field-name-body field-type-text-with-summary field-label-hidden">
+                                    <div class="field-items" id="listCenters">
+                                        <div class="field-item even" property="content:encoded">
+                                            <p>Please note that this is a listing of public sites for research centers on the Camden, Newark and New Brunswick/Piscataway campuses. It does not include departmental web sites or individual staff, faculty, or student web pages.</p>                                            
+                                        </div>
+                                        <div class="field-item even" property="content:encoded">
+                                            <table class="table-centers">
+                                                <tr class="header-centers" id="listCenterHeader">
+                                                </tr>
+                                            </table>
+                                        </div>
+
+                                        <div class="field-items" id="centerItems">
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /sidebar_first -->
+                <div class="region region-sidebar-second sidebar" id="leftmenuPanel">
+                </div>
+            </div>
+        </div>
+        <!-- /main-content -->
+
+        <div class="region-wrapper clearfix bottom"></div>
+        <!-- /bottom -->
+
+        <div class="region-wrapper clearfix footer-second"></div>
+        <!-- /footer_Second -->
+
+    </div>
+    <!-- /page -->
+
+    <div id="respSize"></div>
+    <!-- helper for JS/media query switching-->
+</body>
+</html>

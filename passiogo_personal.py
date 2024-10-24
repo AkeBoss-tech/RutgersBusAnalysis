@@ -406,9 +406,13 @@ class TransportationSystem:
                 "latitude",
                 "longitude",
                 "speed",
-                "paxLoad100",
+                "paxLoad",
                 "outOfService",
                 "more",
+                "totalCap",
+                "outdated",
+                "deviceId",
+                "routeBlockId",
                 "tripId",
             ]:
                 if key not in vehicle:
@@ -428,10 +432,14 @@ class TransportationSystem:
                     latitude=vehicle["latitude"],
                     longitude=vehicle["longitude"],
                     speed=vehicle["speed"],
-                    paxLoad=vehicle["paxLoad100"],
+                    paxLoad=vehicle["paxLoad"],
                     outOfService=vehicle["outOfService"],
                     more=vehicle["more"],
                     tripId=vehicle["tripId"],
+                    totalCap=vehicle["totalCap"],
+                    outdated=vehicle["outdated"],
+                    deviceId=vehicle["deviceId"],
+                    routeBlockId=vehicle["routeBlockId"],
                 )
             )
 
@@ -725,6 +733,10 @@ class Vehicle:
         outOfService: bool = None,
         more: str = None,
         tripId: str = None,
+        totalCap: int = None,
+        outdated: int = None,
+        deviceId: int = None,
+        routeBlockId: str = None,
     ):
         self.id = id
         self.name = name
@@ -742,6 +754,10 @@ class Vehicle:
         self.outOfService = outOfService
         self.more = more
         self.tripId = tripId
+        self.totalCap = totalCap
+        self.outdated = outdated
+        self.deviceId = deviceId
+        self.routeBlockId = routeBlockId
 
 
 ### Live Timings ###

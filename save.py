@@ -40,11 +40,16 @@ def print_file_size(file_path):
 system = passiogo_personal.getSystemFromID(RUTGERS_ID)
 
 # Initialize DataFrame to store bus information
-columns = ['id', 'name', 'type', 'calculatedCourse', 'routeName', 
-        'created', 'longitude', 'latitude', 'speed', 'paxLoad', 'totalCap', 
-           'outOfService', 'more', 'tripId', 'deviceId', 
-           'outdated', 'routeBlockId', 'timestamp']
-bus_data = pd.DataFrame(columns=columns)
+# read the OUTPUT_FILE if it exists
+# otherwise, create a new DataFrame
+if os.path.exists(OUTPUT_FILE):
+    bus_data = pd.read_csv(OUTPUT_FILE)
+else: 
+    columns = ['id', 'name', 'type', 'calculatedCourse', 'routeName', 
+            'created', 'longitude', 'latitude', 'speed', 'paxLoad', 'totalCap', 
+            'outOfService', 'more', 'tripId', 'deviceId', 
+            'outdated', 'routeBlockId', 'timestamp']
+    bus_data = pd.DataFrame(columns=columns)
 
 def collect_bus_data():
     global bus_data

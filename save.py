@@ -46,9 +46,9 @@ if os.path.exists(OUTPUT_FILE):
     bus_data = pd.read_csv(OUTPUT_FILE)
 else: 
     columns = ['id', 'name', 'type', 'calculatedCourse', 'routeName', 
-            'created', 'longitude', 'latitude', 'speed', 'paxLoad', 'totalCap', 
-            'outOfService', 'more', 'tripId', 'deviceId', 
-            'outdated', 'routeBlockId', 'timestamp']
+            'created', 'longitude', 'latitude', 'paxLoad', 'totalCap', 
+            'more', 'tripId', 'deviceId', 
+            'routeBlockId', 'timestamp']
     bus_data = pd.DataFrame(columns=columns)
 
 def collect_bus_data():

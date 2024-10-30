@@ -70,12 +70,10 @@ def collect_bus_data():
             'latitude': bus.latitude,
             'speed': bus.speed,
             'paxLoad': bus.paxLoad,
-            'outOfService': bus.outOfService,
             'more': bus.more,
             'tripId': bus.tripId,
             'deviceId': bus.deviceId,
             'totalCap': bus.totalCap,
-            'outdated': bus.outdated,
             'routeBlockId': bus.routeBlockId,
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Store current time
         }

@@ -53,7 +53,11 @@ else:
 
 def collect_bus_data():
     global bus_data
-    buses = get_buses()
+    try:
+        buses = get_buses()
+    except:
+        # API not working skip this iteration
+        return False
     
     # List to hold current bus info
     bus_list = []
@@ -82,6 +86,7 @@ def collect_bus_data():
     # Append the current data to the DataFrame
     new_data = pd.DataFrame(bus_list)
     bus_data = pd.concat([bus_data, new_data], ignore_index=True)
+    return True
 
 def save_to_file():
     global bus_data
@@ -92,9 +97,9 @@ def save_to_file():
 # Run the data collection and saving loop
 try:
     while True:
-        collect_bus_data()
-        save_to_file()
-        print(f"Data collected and saved to {OUTPUT_FILE}")
+        if collect_bus_data():
+            save_to_file()
+            print(f"Data collected and saved to {OUTPUT_FILE}")
         time.sleep(SAVE_INTERVAL)  # Wait for the next interval
 except KeyboardInterrupt:
     print("Data collection stopped.")

@@ -1,13 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutgers Bus Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <style>
+        #map { height: 60vh; }
+        #controls { margin-top: 10px; display: flex; flex-direction: column; align-items: center; }
+        #timeline { width: 80%; margin-top: 10px; }
+        #timeDisplay { margin-top: 10px; font-size: 16px; }
+        #routeSelector { margin: 10px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+        .route-option { margin-right: 15px; }
+        #legend { margin-top: 15px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+        .legend-item { display: flex; align-items: center; margin: 5px; }
+        .legend-color { width: 15px; height: 15px; display: inline-block; margin-right: 5px; }
+        #busTable { margin-top: 10px; width: 80%; text-align: center; border-collapse: collapse; }
+        #busTable th, #busTable td { padding: 5px; border: 1px solid #ddd; }
+        #busTable th { background-color: #f2f2f2; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>Rutgers Bus Analysis</h2>
+    <div id="map"></div>
+    <div id="controls">
+        <div id="timeDisplay">Current Time: <span id="currentTime"></span></div>
+        <input type="range" id="timeline" min="0" max="0" step="1" value="0" onchange="updateMapFromSlider()">
+        <div>
+            <button onclick="play()">Play</button>
+            <button onclick="pause()">Pause</button>
+            <label for="speedSelect">Speed:</label>
+            <select id="speedSelect" onchange="updateSpeed()">
+                <option value="1000">1x</option>
+                <option value="500">2x</option>
+                <option value="250">4x</option>
+                <option value="100">10x</option>
+                <option value="50">20x</option>
+            </select>
         </div>
+    </div>
+
+    <div id="routeSelector">
+        <!-- Checkboxes will be dynamically created here -->
+    </div>
+
+    <div id="legend">
+        <!-- Color key for routes will be dynamically created here -->
+    </div>
+
+    <table id="busTable" style="text-align: center;">
+        <thead>
+            <tr>
+                <th>Bus Name</th>
+                <th>Route</th>
+                <th>Passengers</th>
+                <th>Closest Stop</th>
+                <th>At Stop</th>
+            </tr>
+        </thead>
+        <tbody id="busTableBody">
+            <!-- Bus details will be dynamically populated here -->
+        </tbody>
         <div class="content">
             <a href="maps/A Route_map.html">A Route</a>
             <a href="maps/B Route_map.html">B Route</a>
@@ -22,7 +74,206 @@
             <a href="maps/Weekend 1_map.html">Weekend 1 Route</a>
             <a href="maps/Weekend 2_map.html">Weekend 2 Route</a>
         </div>
-    </div>
-</body>
+    </table>
 
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        // Initialize map
+        var map = L.map('map').setView([40.52, -74.43], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        var markers = {};
+        var busData = [];
+        var stopData = [];
+        var timestamps = [];
+        var currentTimestampIndex = 0;
+        var interval;
+        var playSpeed = 1000;
+        var selectedRoutes = new Set();
+        var colorsByRoute = {
+            "LX Route": "blue",
+            "B Route": "red",
+            "REXB Route": "green",
+            "A Route": "orange",
+            "REXL Route": "purple",
+            "EE Route": "brown",
+            "H Route": "cyan",
+            "F Route": "pink",
+            "Weekend 1": "gray",
+            "Weekend 2": "black"
+        };
+
+        // Fetch CSV data and stops data
+        Papa.parse('https://raw.githubusercontent.com/AkeBoss-tech/RutgersBusAnalysis/main/cloud-data/bus_data.csv', {
+            download: true,
+            header: true,
+            complete: function(results) {
+                busData = results.data;
+                timestamps = [...new Set(busData.map(bus => bus.timestamp))];
+                setupTimelineSlider();
+                setupLegendAndRouteSelectors();
+                updateMap();
+            }
+        });
+
+        fetch('https://raw.githubusercontent.com/AkeBoss-tech/RutgersBusAnalysis/main/data/stops.json')
+            .then(response => response.json())
+            .then(data => stopData = data);
+
+        // Setup timeline slider
+        function setupTimelineSlider() {
+            const timeline = document.getElementById("timeline");
+            timeline.max = timestamps.length - 1;
+        }
+
+        // Setup legend and route selectors
+        function setupLegendAndRouteSelectors() {
+            const legend = document.getElementById("legend");
+            const routeSelector = document.getElementById("routeSelector");
+
+            Object.keys(colorsByRoute).forEach(route => {
+                const legendItem = document.createElement("div");
+                legendItem.className = "legend-item";
+                legendItem.innerHTML = `<div class="legend-color" style="background-color: ${colorsByRoute[route]}"></div>${route}`;
+                legend.appendChild(legendItem);
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.checked = true;
+                checkbox.value = route;
+                checkbox.id = `route-${route}`;
+                checkbox.onchange = toggleRouteVisibility;
+                selectedRoutes.add(route);
+
+                const label = document.createElement("label");
+                label.className = "route-option";
+                label.appendChild(checkbox);
+                label.append(route);
+                routeSelector.appendChild(label);
+            });
+        }
+
+        // Calculate the closest stop for a given bus
+        function findClosestStop(bus) {
+            let closestStop = null;
+            let minDistance = Infinity;
+
+            stopData.forEach(stop => {
+                const distance = Math.sqrt(
+                    Math.pow(bus.latitude - stop.latitude, 2) + Math.pow(bus.longitude - stop.longitude, 2)
+                );
+                if (distance < minDistance) { // approx radius in degrees
+                    minDistance = distance;
+                    closestStop = stop.name;
+                }
+            });
+
+            return closestStop || "No nearby stop";
+        }
+
+        // Calculate the closest stop for a given bus
+        function findatStop(bus) {
+            let closestStop = null;
+            let minDistance = Infinity;
+
+            stopData.forEach(stop => {
+                const distance = Math.sqrt(
+                    Math.pow(bus.latitude - stop.latitude, 2) + Math.pow(bus.longitude - stop.longitude, 2)
+                );
+                if (distance < minDistance && distance < (stop.radius / 111000)) { // approx radius in degrees
+                    minDistance = distance;
+                    closestStop = stop.name;
+                }
+            });
+
+            return closestStop || "";
+        }
+
+        // Update the bus table with relevant information
+        function updateBusTable(currentBuses) {
+            const busTableBody = document.getElementById("busTableBody");
+            busTableBody.innerHTML = "";
+
+            currentBuses.forEach(bus => {
+                const closestStop = findClosestStop(bus);
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${bus.name}</td>
+                    <td>${bus.routeName}</td>
+                    <td>${bus.paxLoad}/${bus.totalCap}</td>
+                    <td>${closestStop}</td>
+                    <td>${findatStop(bus)}</td>
+                `;
+
+                busTableBody.appendChild(row);
+            });
+        }
+
+        // Update map based on timestamp and selected routes
+        function updateMap() {
+            let timestamp = timestamps[currentTimestampIndex];
+            let currentBuses = busData.filter(bus => bus.timestamp === timestamp && selectedRoutes.has(bus.routeName));
+
+            document.getElementById("currentTime").textContent = timestamp;
+
+            Object.values(markers).forEach(marker => marker.remove());
+            markers = {};
+
+            currentBuses.forEach(bus => {
+                let id = bus.id;
+                let coords = [parseFloat(bus.latitude), parseFloat(bus.longitude)];
+                let routeColor = colorsByRoute[bus.routeName] || "gray";
+
+                let marker = L.circleMarker(coords, {
+                    color: routeColor,
+                    radius: 6
+                }).addTo(map)
+                  .bindPopup(`<b>Bus ${bus.name}</b><br>Route: ${bus.routeName}<br>Passengers: ${bus.paxLoad}/${bus.totalCap}`);
+
+                markers[id] = marker;
+            });
+
+            updateBusTable(currentBuses);
+        }
+
+        function updateMapFromSlider() {
+            currentTimestampIndex = document.getElementById("timeline").value;
+            updateMap();
+        }
+
+        function play() {
+            clearInterval(interval);
+            interval = setInterval(() => {
+                document.getElementById("timeline").value = currentTimestampIndex;
+                updateMap();
+                currentTimestampIndex = (currentTimestampIndex + 1) % timestamps.length;
+            }, playSpeed);
+        }
+
+        function pause() {
+            clearInterval(interval);
+        }
+
+        function updateSpeed() {
+            playSpeed = parseInt(document.getElementById("speedSelect").value);
+            if (interval) {
+                play();
+            }
+        }
+
+        function toggleRouteVisibility(event) {
+            const route = event.target.value;
+            if (event.target.checked) {
+                selectedRoutes.add(route);
+            } else {
+                selectedRoutes.delete(route);
+            }
+            updateMap();
+        }
+    </script>
+</body>
 </html>

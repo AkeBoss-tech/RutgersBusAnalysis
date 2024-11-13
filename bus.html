@@ -25,7 +25,21 @@
         <select id="busSelector" onchange="updateBusAnalysis()"></select>
         <button onclick="playMarkers()">Play Route</button>
         <div id="speedGraphContainer">
-            <canvas id="speedGraph"></canvas>
+            <div>
+                <label for="startTime">Start Time:</label>
+                <input type="range" id="startTime" min="0" max="1440" value="0" step="1" oninput="updateStartTimeLabel()">
+                <span id="startTimeLabel">00:00</span>
+            </div>
+            
+            <div>
+                <label for="endTime">End Time:</label>
+                <input type="range" id="endTime" min="0" max="1440" value="1440" step="1" oninput="updateEndTimeLabel()">
+                <span id="endTimeLabel">23:59</span>
+            </div>
+            
+            <button onclick="updateGraph()">Update Graph</button>
+            
+            <canvas id="speedGraph" width="400" height="200"></canvas>
         </div>
         <div id="capacityGraphContainer">
             <canvas id="capacityGraph"></canvas>
@@ -108,19 +122,64 @@
             calculateStopTimes(busRouteData);
             resetMarkers(busRouteData);
         }
+        
+        // Initialize time labels based on slider values
+        function updateStartTimeLabel() {
+            const startTimeValue = document.getElementById("startTime").value;
+            document.getElementById("startTimeLabel").textContent = minutesToTime(startTimeValue);
+        }
 
-        function displayBusSpeeds(data) {
-            const speeds = data.map((bus, i) => {
-                if (i === 0) return 0;
-                const timeDiff = (new Date(data[i].timestamp) - new Date(data[i - 1].timestamp)) / 3600000;
-                const latDiff = (data[i].latitude - data[i - 1].latitude) * 69;
-                const longDiff = (data[i].longitude - data[i - 1].longitude) * 53;
-                const distance = Math.sqrt(latDiff ** 2 + longDiff ** 2);
-                return distance / timeDiff;
-            });
-            const labels = data.map(bus => new Date(bus.timestamp).toLocaleTimeString());
+        function updateEndTimeLabel() {
+            const endTimeValue = document.getElementById("endTime").value;
+            document.getElementById("endTimeLabel").textContent = minutesToTime(endTimeValue);
+        }
+
+        // Convert minutes into HH:MM format
+        function minutesToTime(minutes) {
+            const hours = String(Math.floor(minutes / 60)).padStart(2, '0');
+            const mins = String(minutes % 60).padStart(2, '0');
+            return `${hours}:${mins}`;
+        }
+
+        // Update graph based on selected time range
+        function updateGraph() {
+            const startTimeValue = document.getElementById("startTime").value;
+            const endTimeValue = document.getElementById("endTime").value;
+            const date = "2024-11-10";  // Example date; adjust as needed
+
+            const beforeTime = new Date(`${date}T${minutesToTime(startTimeValue)}:00`);
+            const afterTime = new Date(`${date}T${minutesToTime(endTimeValue)}:00`);
+
+            displayBusSpeeds(busData, beforeTime, afterTime);
+        }
+
+        // Modified displayBusSpeeds function with time filtering
+        function displayBusSpeeds(data, beforeTime, afterTime) {
+            const speeds = data
+                .filter((bus, i) => {
+                    const time = new Date(bus.timestamp);
+                    return time >= beforeTime && time <= afterTime;
+                })
+                .map((bus, i, filteredData) => {
+                    if (i === 0) return 0;
+                    const timeDiff = (new Date(filteredData[i].timestamp) - new Date(filteredData[i - 1].timestamp)) / 3600000;
+                    const latDiff = (filteredData[i].latitude - filteredData[i - 1].latitude) * 69;
+                    const longDiff = (filteredData[i].longitude - filteredData[i - 1].longitude) * 53;
+                    const distance = Math.sqrt(latDiff ** 2 + longDiff ** 2);
+                    const speed = distance / timeDiff;
+                    return speed > 80 ? null : speed;  // Filter out speeds above 80 mph
+                })
+                .filter(speed => speed !== null);
+
+            const labels = data
+                .filter(bus => {
+                    const time = new Date(bus.timestamp);
+                    return time >= beforeTime && time <= afterTime;
+                })
+                .map(bus => new Date(bus.timestamp).toLocaleTimeString());
 
             if (speedChart) speedChart.destroy();
+
             const ctx = document.getElementById('speedGraph').getContext('2d');
             speedChart = new Chart(ctx, {
                 type: 'line',
@@ -130,11 +189,17 @@
                         label: 'Speed (mph)',
                         data: speeds,
                         borderColor: 'blue',
-                        borderWidth: 2,
-                        fill: false
+                        borderWidth: 2
                     }]
                 },
                 options: {
+                    responsive: true,
+                    plugins: {
+                        zoom: {
+                            pan: { enabled: true },
+                            zoom: { enabled: true, mode: 'x' }
+                        }
+                    },
                     scales: {
                         x: { title: { display: true, text: 'Time' } },
                         y: { title: { display: true, text: 'Speed (mph)' } }
@@ -142,6 +207,12 @@
                 }
             });
         }
+
+        // Initialize labels for start and end times on page load
+        updateStartTimeLabel();
+        updateEndTimeLabel();
+
+
 
         function displayBusCapacity(data) {
             const capacity = data.map(bus => parseInt(bus.load, 10));

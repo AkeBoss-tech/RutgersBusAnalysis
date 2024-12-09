@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Data Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #controls {
+            margin-bottom: 20px;
+        }
+        canvas {
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+    <h1>Rutgers Bus Data Visualization</h1>
+
+    <div id="controls">
+        <label for="busSelector">Select Bus ID:</label>
+        <select id="busSelector"></select>
+    </div>
+
+    <canvas id="individualBusChart" width="600" height="400"></canvas>
+    <canvas id="allBusesChart" width="600" height="400"></canvas>
+    <canvas id="averageLoopTimeChart" width="600" height="400"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

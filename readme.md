@@ -5,30 +5,39 @@ A data analysis project examining Rutgers University's bus transit system throug
 
 ## Cool Graphs
 ![Average Load of LX over the course of a day](media/image-5.png)
+
 *My favorite graph from this project*
 
 ![Average Load Across Multiple Routes](media/image-1.png)
+
 *Same graph but for every route*
 
 ![Loop times for different routes](media/image-8.png)
+
 *Calculated loop times during post processing for each route*
 
 ![Most filled buses](media/image-3.png)
+
 *Useful to see which buses are most full*
 
 ![Total Buses operating during the week](media/image-4.png)
+
 *Total buses operating during the week*
 
 ![Random colorful graph of data found in exploration](media/image-6.png)
+
 *This is a cool graph that I made while exploring*
 
 ![Average speed of a bus (over 30 seconds) serving 5 routes during the week](media/image-7.png)
+
 *Speed of a bus serving the LX, H, REXB, EE, and F Routes. (Bus ID 4875)*
 
 ![LX but color coded by buses in operation](media/image-2.png)
+
 *Color coded by buses in operation*
 
 ![Bus Wait Times Example](graphs/A_Route_stop_stopped.png)
+
 *Example visualization showing bus wait times for A Route throughout the day*
 
 ## Project Overview
@@ -88,10 +97,12 @@ Sample data growth metrics:
 - Outlier detection and filtering
 
 ![Route Completion Times](maps/buses.gif)
+
 A random gif with buses moving
 
 ### 2. Wait Time Analysis
 ![Wait Times Distribution](graphs/A_Route_stop_stopped.png)
+
 - Combined scatter and density plots showing wait patterns
 - Time-of-day correlation analysis
 - Average wait time calculations by stop
@@ -114,21 +125,86 @@ A random gif with buses moving
 ```
 project/
 │
-├── analyze.ipynb - Clustering and geographic analysis
-├── loops.ipynb - Route timing analysis
-├── stops.ipynb - Wait time analysis
-├── bus.ipynb - Basic data exploration
-├── time.ipynb - Timing data analysis
+├── Data Extraction/
+│   ├── time.ipynb           - Processes timing data
+│   │   ├── Route completion times
+│   │   ├── Wait time calculations
+│   │   └── Time series preprocessing
+│   │
+│   └── stops.ipynb          - Stop-specific data processing
+│       ├── Stop identification
+│       ├── Wait time calculations
+│       └── Route-stop mapping
 │
-├── data/ - Raw and log data files
-│   ├── stops.json
-│   └── route_data/*.csv
+├── Data Visualization/
+│   ├── bus.ipynb           - Individual bus analysis
+│   │   ├── Speed over time plots
+│   │   ├── Geographic scatter plots
+│   │   └── Stop frequency visualizations
+│   │
+│   ├── another.ipynb       - Route-level analysis
+│   │   ├── Load pattern comparisons
+│   │   ├── 3x3 grid route comparisons
+│   │   └── Wait time distributions
+│   │
+│   └── loop.ipynb          - Route loop analysis
+│       ├── Loop completion visualizations
+│       ├── Route efficiency comparisons
+│       └── Time series plots
 │
-└── graphs/
-    ├── A_Route_stopped.png
-    ├── B_Route_stopped.png
-    └── ...
+├── Data/
+│   ├── stops.json          - Stop location data
+│   ├── new_brunswick.txt   - Route definitions
+│   └── route_data/         - Raw CSV data files
+│       ├── A_Route.csv
+│       ├── B_Route.csv
+│       └── ...
+│
+├── Graphs/                 - Generated visualizations
+│   ├── A_Route_stopped.png
+│   ├── B_Route_stopped.png
+│   └── ...
+│
+├── Maps/                   - Interactive map files
+│   ├── buses.gif
+│   └── route_maps/
+│       ├── A_Route_map.html
+│       └── ...
+│
+└── save.py                - Data collection script
 ```
+
+### Data Extraction Files
+- **time.ipynb**: Processes raw bus data to extract timing information. Handles timestamp conversions, calculates route completion times, and processes time-based metrics.
+- **stops.ipynb**: Focuses on stop-related data processing. Identifies bus stops, calculates wait times, and maps stops to routes.
+
+### Data Visualization Files
+- **bus.ipynb**: Creates visualizations for individual bus metrics including:
+  - Speed patterns over time
+  - Geographic distribution of buses
+  - Stop frequency analysis
+  - Wait time patterns
+
+- **another.ipynb**: Generates route-level visualizations showing:
+  - Passenger load patterns
+  - Route comparisons in 3x3 grid format
+  - Wait time distributions across routes
+  - Peak usage periods
+
+- **loop.ipynb**: Visualizes route loop patterns including:
+  - Route completion times
+  - Efficiency comparisons between routes
+  - Time series analysis of route performance
+
+### Supporting Files
+- **save.py**: Python script for data collection from PassioGO API
+- **stops.json**: JSON file containing stop location data
+- **new_brunswick.txt**: Text file containing route definitions
+- **route_data/*.csv**: Raw data files for each route
+- **graphs/**: Directory containing generated static visualizations
+- **maps/**: Directory containing interactive map visualizations
+
+Each notebook is designed to work independently but can be run sequentially for a complete analysis pipeline from raw data to final visualizations. You may need to change some of the paths to data sources. Try pulling an older version of this project to fix it.
 
 ## Technologies Used
 

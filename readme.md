@@ -2,19 +2,34 @@
 
 A data analysis project examining Rutgers University's bus transit system through various metrics including wait times, route patterns, and stop clustering.
 
-![Bus Wait Times Example](graphs/A_Route_stopped.png)
-*Example visualization showing bus wait times for A Route throughout the day*
 
 ## Cool Graphs
 ![Average Load of LX over the course of a day](media/image-5.png)
-![Number of people on LX over a week](image.png)
-![Loop times for different routes](image-8.png)
-![Average Load Across Multiple Routes](image-1.png)
-![LX but color coded by buses in operation](image-2.png)
-![Most filled buses](image-3.png)
-![Total Buses operating during the week](image-4.png)
-![Random colorful graph of data found in exploration](image-6.png)
-![Average speed of a bus (over 30 seconds) serving 5 routes during the week](image-7.png)
+*My favorite graph from this project*
+
+![Average Load Across Multiple Routes](media/image-1.png)
+*Same graph but for every route*
+
+![Loop times for different routes](media/image-8.png)
+*Calculated loop times during post processing for each route*
+
+![Most filled buses](media/image-3.png)
+*Useful to see which buses are most full*
+
+![Total Buses operating during the week](media/image-4.png)
+*Total buses operating during the week*
+
+![Random colorful graph of data found in exploration](media/image-6.png)
+*This is a cool graph that I made while exploring*
+
+![Average speed of a bus (over 30 seconds) serving 5 routes during the week](media/image-7.png)
+*Speed of a bus serving the LX, H, REXB, EE, and F Routes. (Bus ID 4875)*
+
+![LX but color coded by buses in operation](media/image-2.png)
+*Color coded by buses in operation*
+
+![Bus Wait Times Example](graphs/A_Route_stop_stopped.png)
+*Example visualization showing bus wait times for A Route throughout the day*
 
 ## Project Overview
 
@@ -72,6 +87,9 @@ Sample data growth metrics:
 - Statistical analysis of route efficiency
 - Outlier detection and filtering
 
+![Route Completion Times](maps/buses.gif)
+A random gif with buses moving
+
 ### 2. Wait Time Analysis
 ![Wait Times Distribution](graphs/A_Route_stop_stopped.png)
 - Combined scatter and density plots showing wait patterns
@@ -83,10 +101,13 @@ Sample data growth metrics:
 - Interactive map visualization (in development)
 - Stop location analysis
 
-### 4. Load Analysis
-- Passenger load tracking throughout routes
-- Capacity utilization metrics
-- Peak time identification
+(This didn't really work out as well as I wanted it to)
+
+![alt text](media/image-cool.png)
+
+### 4. Website to display some data
+- go through each each time and watch the buses move [on the map](https://akeboss-tech.github.io/RutgersBusAnalysis/)!
+- you can also see all the data collected for each route [A Route](https://akeboss-tech.github.io/RutgersBusAnalysis/maps/A%20Route_map.html)
 
 ## File Structure
 
@@ -96,11 +117,10 @@ project/
 ├── analyze.ipynb - Clustering and geographic analysis
 ├── loops.ipynb - Route timing analysis
 ├── stops.ipynb - Wait time analysis
-├── main.ipynb - API connection and mapping
 ├── bus.ipynb - Basic data exploration
 ├── time.ipynb - Timing data analysis
 │
-├── data/
+├── data/ - Raw and log data files
 │   ├── stops.json
 │   └── route_data/*.csv
 │

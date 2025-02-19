@@ -5,28 +5,31 @@ from datetime import datetime
 
 # Constants
 RUTGERS_ID = 1268  # Rutgers ID for PassioGO system
-SAVE_INTERVAL = 30  # Save data every ___ seconds
-OUTPUT_FILE = 'bus_data.csv'
+SAVE_INTERVAL = 30  # Save data every 30 seconds
+OUTPUT_FILE = 'bus_data.csv'  # Output file name for storing bus data
 
+# Read route names from the specified text file
 routeNames = open('new_brunswick.txt').read().split('\n')
 
-# Read the vehicles to count from the file
+# Function to get the list of buses currently operating on specified routes
 def get_buses():
-    vehicles = system.getVehicles()
+    vehicles = system.getVehicles()  # Fetch current vehicles from the PassioGO system
     
-    vehiclesNB = []
+    vehiclesNB = []  # List to hold vehicles that match the specified routes
 
+    # Loop through each vehicle and check if it belongs to the specified routes
     for route in vehicles:
         if route.routeName in routeNames:
-            vehiclesNB.append(route)
+            vehiclesNB.append(route)  # Add the vehicle to the list if it matches
     
-    return vehiclesNB
+    return vehiclesNB  # Return the list of vehicles
 
+# Function to print the size of the specified file
 def print_file_size(file_path):
     # Check the size of the file in bytes
     file_size = os.path.getsize(file_path)
     
-    # Convert the file size to KB, MB, etc.
+    # Convert the file size to KB, MB, etc., and print it
     if file_size < 1024:
         print(f"File size: {file_size} Bytes")
     elif file_size < 1024**2:
@@ -36,32 +39,34 @@ def print_file_size(file_path):
     else:
         print(f"File size: {file_size / (1024**3):.2f} GB")
 
-# Initialize PassioGO system
+# Initialize PassioGO system using the specified Rutgers ID
 system = passiogo_personal.getSystemFromID(RUTGERS_ID)
 
 # Initialize DataFrame to store bus information
-# read the OUTPUT_FILE if it exists
-# otherwise, create a new DataFrame
+# Check if the output file already exists
 if os.path.exists(OUTPUT_FILE):
-    bus_data = pd.read_csv(OUTPUT_FILE)
+    bus_data = pd.read_csv(OUTPUT_FILE)  # Read existing data from the CSV file
 else: 
+    # Define the columns for the DataFrame if the file does not exist
     columns = ['id', 'name', 'type', 'calculatedCourse', 'routeName', 
-            'created', 'longitude', 'latitude', 'paxLoad', 'totalCap', 
-            'more', 'tripId', 'deviceId', 
-            'routeBlockId', 'timestamp']
-    bus_data = pd.DataFrame(columns=columns)
+               'created', 'longitude', 'latitude', 'paxLoad', 'totalCap', 
+               'more', 'tripId', 'deviceId', 
+               'routeBlockId', 'timestamp']
+    bus_data = pd.DataFrame(columns=columns)  # Create a new DataFrame with the defined columns
 
+# Function to collect bus data from the PassioGO system
 def collect_bus_data():
-    global bus_data
+    global bus_data  # Use the global bus_data variable
     try:
-        buses = get_buses()
+        buses = get_buses()  # Get the current buses
     except:
-        # API not working skip this iteration
+        # If the API is not working, skip this iteration
         return False
     
-    # List to hold current bus info
+    # List to hold current bus information
     bus_list = []
     
+    # Loop through each bus and collect its information
     for bus in buses:
         bus_info = {
             'id': bus.id,
@@ -79,27 +84,28 @@ def collect_bus_data():
             'deviceId': bus.deviceId,
             'totalCap': bus.totalCap,
             'routeBlockId': bus.routeBlockId,
-            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Store current time
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Store the current timestamp
         }
-        bus_list.append(bus_info)
+        bus_list.append(bus_info)  # Add the bus information to the list
     
     # Append the current data to the DataFrame
-    new_data = pd.DataFrame(bus_list)
-    bus_data = pd.concat([bus_data, new_data], ignore_index=True)
-    return True
+    new_data = pd.DataFrame(bus_list)  # Create a DataFrame from the bus list
+    bus_data = pd.concat([bus_data, new_data], ignore_index=True)  # Concatenate the new data to the existing DataFrame
+    return True  # Indicate successful data collection
 
+# Function to save the collected bus data to a CSV file
 def save_to_file():
-    global bus_data
+    global bus_data  # Use the global bus_data variable
     # Save the data to a CSV file
-    bus_data.to_csv(OUTPUT_FILE, index=False)
-    print_file_size(OUTPUT_FILE)
+    bus_data.to_csv(OUTPUT_FILE, index=False)  # Write the DataFrame to the CSV file without the index
+    print_file_size(OUTPUT_FILE)  # Print the size of the saved file
 
 # Run the data collection and saving loop
 try:
     while True:
-        if collect_bus_data():
-            save_to_file()
-            print(f"Data collected and saved to {OUTPUT_FILE}")
+        if collect_bus_data():  # Collect bus data
+            save_to_file()  # Save the collected data to a file
+            print(f"Data collected and saved to {OUTPUT_FILE}")  # Print confirmation message
         time.sleep(SAVE_INTERVAL)  # Wait for the next interval
 except KeyboardInterrupt:
-    print("Data collection stopped.")
+    print("Data collection stopped.")  # Print message when data collection is stopped
